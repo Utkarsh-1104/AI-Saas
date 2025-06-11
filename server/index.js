@@ -79,7 +79,7 @@ app.post('/resume-analyzer', async (req, res) => {
     const ollamaResponse = await axios.post("http://localhost:11434/api/generate", {
         model: "qwen:7b",
         prompt: prompt,
-        stream: false,
+        stream: true,
     })
     const responseData = ollamaResponse.data.response
     const parsedResponse = JSON.parse(responseData);

@@ -1,6 +1,7 @@
 'use client';
 import axios from 'axios';
 import React, { use } from 'react';
+import pdfToText from 'react-pdftotext';
 
 export default function Home() {
   const [resume, setResume] = React.useState('');
@@ -8,6 +9,21 @@ export default function Home() {
   const [result, setResult] = React.useState(null);
   const [isLoading, setLoading] = React.useState(false);
 
+  const extractText = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event?.target.files?.[0];
+    console.log(file)
+    pdfToText(file).then(text => {
+      setResume(text);
+    }
+    ).catch(error => {
+      console.error("Error extracting text from PDF:", error);
+      alert("Failed to extract text from the PDF. Please try another file.");
+    }
+    );
+
+  }
+  
+  console.log(resume)
   const handleSubmit = async (e: React.FormEvent) => {
     setLoading(true);
     e.preventDefault();
@@ -44,16 +60,9 @@ export default function Home() {
             {/* Resume Input */}
             <div className="space-y-3">
               <label htmlFor="resume" className="block text-base font-medium text-black uppercase tracking-wide">
-                Your Resume
+                Upload Resume
               </label>
-              <textarea
-                id="resume"
-                value={resume}
-                onChange={(e) => setResume(e.target.value)}
-                placeholder="Paste your resume content here..."
-                className="w-full h-50 px-4 py-3 border border-gray-300 focus:border-black focus:outline-none resize-none text-sm leading-relaxed transition-colors"
-                disabled={isLoading}
-              />
+              <input className='border border-gray-300 p-2 w-full' type="file" name="resume" id="resume" accept="application/pdf" onChange={extractText} />
             </div>
 
             {/* Job Description Input */}
