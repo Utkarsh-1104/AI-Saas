@@ -1,10 +1,17 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
 
+import { GoogleGenAI } from "@google/genai";
+
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const ai = new GoogleGenAI({ apiKey: process.env.GENAI_API_KEY });
 
 
 app.get('/', (req, res) => {
@@ -18,7 +25,7 @@ app.post('/resume-analyzer', async (req, res) => {
     console.log(resumeText, jd)
     
     try {
-        const prompt = `You are a helpful AI resume evaluator. Analyze the candidate's resume against the job description provided and return your response in **valid JSON** with the following format:
+        const prompt = `You are a leading resume evaluator. Analyze the candidate's resume against the job description provided and return your response in **valid JSON** with the following format:
 
         ---
 
@@ -76,17 +83,18 @@ app.post('/resume-analyzer', async (req, res) => {
         `;
 
 
-    const ollamaResponse = await axios.post("http://localhost:11434/api/generate", {
-        model: "qwen:7b",
-        prompt: prompt,
-        stream: true,
-    })
-    const responseData = ollamaResponse.data.response
-    const parsedResponse = JSON.parse(responseData);
-    console.log(parsedResponse)
-
+    const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+    });
+    console.log(response.text);
+    const responseData = response.text;
+    const jsonStart = responseData.indexOf('{');
+    const jsonEnd = responseData.lastIndexOf('}') + 1;
+    const jsonString = responseData.substring(jsonStart, jsonEnd);
+    const jsonResponse = JSON.parse(jsonString);
     res.json({
-        parsedResponse: parsedResponse
+        data: jsonResponse
     })
 
     } catch (error) {

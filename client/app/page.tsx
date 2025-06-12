@@ -11,7 +11,6 @@ export default function Home() {
 
   const extractText = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
-    console.log(file)
     pdfToText(file).then(text => {
       setResume(text);
     }
@@ -23,7 +22,6 @@ export default function Home() {
 
   }
   
-  console.log(resume)
   const handleSubmit = async (e: React.FormEvent) => {
     setLoading(true);
     e.preventDefault();
@@ -33,7 +31,7 @@ export default function Home() {
       jd: jd
     })
 
-    setResult(response.data.parsedResponse);
+    setResult(response.data.data);
     setLoading(false);
   };
 
@@ -46,7 +44,7 @@ export default function Home() {
   return (
      <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-14 sm:px-6 lg:px-8">
-        {/* Header */}
+
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-light text-black mb-4 tracking-tight">AI Resume Analyzer</h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -54,7 +52,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Input Section */}
         <div className="space-y-8 mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Resume Input */}
