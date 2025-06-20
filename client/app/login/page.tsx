@@ -130,11 +130,11 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="text-center pt-4">
+        {/* <div className="text-center pt-4">
           <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide">
             ← Back to AI Resume Analyzer
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   )

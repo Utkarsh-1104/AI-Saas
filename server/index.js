@@ -1,9 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
+import express, { Router } from 'express';
 import cors from 'cors';
-import axios from 'axios';
+
+import signup from './routes/signup.js';
 
 import { GoogleGenAI } from "@google/genai";
 
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
     res.json({ message: 'Hello from server!' });
 })
 
+app.use('/signup', signup);
 
 app.post('/resume-analyzer', async (req, res) => {
     const { resumeText, jd } = req.body;  

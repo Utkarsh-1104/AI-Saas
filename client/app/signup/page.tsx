@@ -4,8 +4,12 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import axios from "axios"
+import { useRouter } from "next/navigation"
 
 export default function SignupPage() {
+  const router = useRouter()
+
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
@@ -60,11 +64,29 @@ export default function SignupPage() {
     setIsLoading(true)
 
     // Simulate API call
-    setTimeout(() => {
-      console.log("Signup attempt:", { firstName, lastName, email, password })
+
+    const response = await axios.post("http://localhost:4000/signup", {
+      firstName,
+      lastName,
+      email,
+      password
+    })
+    
+    console.log(response.data)
+
+    if (response.data.status === 200) {
+      router.push("/resume-match-jd")
+    } else {
       setIsLoading(false)
-      // Handle successful signup here
-    }, 2000)
+      setErrors({
+        firstName: response.data.errors?.firstName,
+        lastName: response.data.errors?.lastName,
+        email: response.data.errors?.email,
+        password: response.data.errors?.password
+      })
+      alert(response.data.message || "An error occurred. Please try again.")
+    }
+
   }
 
   return (
@@ -195,11 +217,11 @@ export default function SignupPage() {
         </div>
 
 
-        <div className="text-center pt-4">
+        {/* <div className="text-center pt-4">
           <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide">
             ← Back to AI Resume Analyzer
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   )
