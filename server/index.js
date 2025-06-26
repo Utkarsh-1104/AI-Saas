@@ -5,6 +5,7 @@ import express, { Router } from 'express';
 import cors from 'cors';
 
 import signup from './routes/signup.js';
+import login from './routes/login.js';
 
 import { GoogleGenAI } from "@google/genai";
 
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/signup', signup);
+app.use('/login', login)
 
 app.post('/resume-analyzer', async (req, res) => {
     const { resumeText, jd } = req.body;  

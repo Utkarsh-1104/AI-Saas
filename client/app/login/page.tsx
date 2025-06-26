@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import axios from "axios"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -40,13 +41,19 @@ export default function LoginPage() {
 
     setIsLoading(true)
 
-    setTimeout(() => {
-      console.log("Login attempt:", { email, password })
-      setIsLoading(false)
-      // Handle successful login here
-
-      router.push("/resume-match-jd")
-    }, 2000)
+    
+    const response = await axios.post("http://localhost:4000/login", { email, password })
+    
+    if (response.data.status === 200) {
+      localStorage.setItem('user', response.data.token)
+      router.push('/resume-match-jd')
+    } else if(response.data.status === 400) {
+      alert("Invalid credentials")
+    } else {
+      alert("Internal server error")
+    }
+    
+    setIsLoading(false)
   }
 
   return (

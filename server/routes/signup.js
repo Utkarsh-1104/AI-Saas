@@ -14,8 +14,9 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        await db(); // Ensure the database connection is established
+        await db(); 
         const existingUser = await User.find({email: email});
+        
         if (existingUser.length > 0) {
             return res.status(400).json({ message: "User already exists" });
         }

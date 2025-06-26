@@ -46,8 +46,8 @@ export default function SignupPage() {
 
     if (!password.trim()) {
       newErrors.password = "Password is required"
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters"
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters"
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
       newErrors.password = "Password must contain uppercase, lowercase, and number"
     }
@@ -75,6 +75,7 @@ export default function SignupPage() {
     console.log(response.data)
 
     if (response.data.status === 200) {
+      localStorage.setItem("user", response.data.token)
       router.push("/resume-match-jd")
     } else {
       setIsLoading(false)
