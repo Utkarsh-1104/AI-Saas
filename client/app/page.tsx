@@ -1,8 +1,19 @@
 'use client';
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('user');
+    if (token) {
+      router.push('/resume-match-jd');
+    }
+
+  }, [])
 
   return (
     <div className="min-h-screen bg-white">

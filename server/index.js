@@ -6,6 +6,7 @@ import cors from 'cors';
 
 import signup from './routes/signup.js';
 import login from './routes/login.js';
+import saveAnalysis from './routes/saveAnalysis.js';
 
 import { GoogleGenAI } from "@google/genai";
 
@@ -21,13 +22,12 @@ app.get('/', (req, res) => {
 })
 
 app.use('/signup', signup);
-app.use('/login', login)
+app.use('/login', login);
+app.use('/save-analysis', saveAnalysis);
 
 app.post('/resume-analyzer', async (req, res) => {
     const { resumeText, jd } = req.body;  
 
-    console.log(resumeText, jd)
-    
     try {
         const prompt = `You are a leading resume evaluator. Analyze the candidate's resume against the job description provided and return your response in **valid JSON** with the following format:
 
@@ -91,13 +91,14 @@ app.post('/resume-analyzer', async (req, res) => {
         model: "gemini-2.0-flash",
         contents: prompt,
     });
-    console.log(response.text);
     const responseData = response.text;
     const jsonStart = responseData.indexOf('{');
     const jsonEnd = responseData.lastIndexOf('}') + 1;
     const jsonString = responseData.substring(jsonStart, jsonEnd);
     const jsonResponse = JSON.parse(jsonString);
     res.json({
+        status: 200,
+        message: "Resume analysis completed successfully",
         data: jsonResponse
     })
 

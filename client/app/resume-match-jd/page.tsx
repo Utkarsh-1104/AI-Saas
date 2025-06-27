@@ -1,6 +1,6 @@
 'use client';
 import axios from 'axios';
-import React, { use } from 'react';
+import React, { use, useEffect } from 'react';
 import pdfToText from 'react-pdftotext';
 
 export default function ResumeMatchJD() {
@@ -8,7 +8,20 @@ export default function ResumeMatchJD() {
   const [jd, setJD] = React.useState('');
   const [result, setResult] = React.useState(null);
   const [isLoading, setLoading] = React.useState(false);
+  const [user, setUser] = React.useState(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem('user');
+    if (!token) {
+      // If the user is not logged in, redirect to the login page
+      window.location.href = '/login';
+    }
+    const part = token?.split('.')[1]
+    const decodedToken = part ? JSON.parse(atob(part)) : null;
+    setUser(decodedToken);
+  }, [])
+
+console.log(user)
   const extractText = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
     pdfToText(file).then(text => {
@@ -32,6 +45,19 @@ export default function ResumeMatchJD() {
     })
 
     setResult(response.data.data);
+
+    if (response.data.status === 400) {
+      alert("Invalid input. Please check your resume and job description.");
+    } else if (response.data.status === 500) {
+      alert("Internal server error. Please try again later.");
+    } else {
+      await axios.post('http://localhost:4000/save-analysis', {
+        user: user?.id,
+        resumeText: resume,
+        jdText: jd,
+        analysis: response.data.data
+      });
+    }
     setLoading(false);
   };
 
