@@ -6,6 +6,9 @@ const analysisSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    title: {
+        type: String,
+    },
     jdText: {
         type: String,
         required: true,
