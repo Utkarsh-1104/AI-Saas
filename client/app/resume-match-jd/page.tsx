@@ -1,5 +1,6 @@
 'use client';
 import axios from 'axios';
+import Link from 'next/link';
 import React, { use, useEffect } from 'react';
 import pdfToText from 'react-pdftotext';
 
@@ -70,14 +71,16 @@ console.log(user)
   return (
      <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-14 sm:px-6 lg:px-8">
+        <Link href="/dashboard" className="absolute right-6 top-4 sm:right-10 sm:top-6 px-4 py-2 text-xs sm:px-6 sm:text-base bg-black text-white font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors">
+          Dashboard
+        </Link>
 
-        <div className="text-center mb-12">
+        <div className="text-center mt-4 mb-12">
           <h1 className="text-4xl sm:text-5xl font-light text-black mb-4 tracking-tight">AI Resume Analyzer</h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             Get intelligent insights on how well your resume matches the job requirements
           </p>
         </div>
-
         <div className="space-y-8 mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Resume Input */}
