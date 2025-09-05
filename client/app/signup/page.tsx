@@ -6,6 +6,7 @@ import { useState } from "react"
 import Link from "next/link"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import { useUser } from "../context/UserContext"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -15,6 +16,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { login } = useUser()
+
   const [errors, setErrors] = useState<{
     firstName?: string
     lastName?: string
@@ -72,10 +75,8 @@ export default function SignupPage() {
       password
     })
     
-    console.log(response.data)
-
     if (response.data.status === 200) {
-      localStorage.setItem("user", response.data.token)
+      login(response.data.token)
       router.push("/resume-match-jd")
     } else {
       setIsLoading(false)

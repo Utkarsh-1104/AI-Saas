@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "./context/UserContext";
 
 export default function Home() {
   const router = useRouter();
+  const { user } = useUser()
 
   useEffect(() => {
-    const token = localStorage.getItem('user');
-    if (token) {
+    // const token = localStorage.getItem('user');
+
+    if (user) {
       router.push('/resume-match-jd');
     }
 
-  }, [])
-
+  }, [user])
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto flex flex-col items-center justify-center px-4 py-14 sm:px-6 lg:px-8">

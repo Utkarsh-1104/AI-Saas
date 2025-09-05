@@ -3,26 +3,23 @@ import axios from 'axios';
 import Link from 'next/link';
 import React, { use, useEffect } from 'react';
 import pdfToText from 'react-pdftotext';
+import { useUser } from '../context/UserContext';
 
 export default function ResumeMatchJD() {
   const [resume, setResume] = React.useState('');
   const [jd, setJD] = React.useState('');
   const [result, setResult] = React.useState(null);
   const [isLoading, setLoading] = React.useState(false);
-  const [user, setUser] = React.useState(null);
+  const { user } = useUser();
 
   useEffect(() => {
-    const token = localStorage.getItem('user');
-    if (!token) {
+    if (!user) {
       // If the user is not logged in, redirect to the login page
       window.location.href = '/login';
     }
-    const part = token?.split('.')[1]
-    const decodedToken = part ? JSON.parse(atob(part)) : null;
-    setUser(decodedToken);
   }, [])
 
-console.log(user)
+  console.log(user)
   const extractText = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
     pdfToText(file).then(text => {

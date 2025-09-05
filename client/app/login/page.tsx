@@ -6,12 +6,14 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import { useUser } from "../context/UserContext"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+  const { setUser } = useUser()
 
   const router = useRouter()
 
@@ -45,7 +47,7 @@ export default function LoginPage() {
     const response = await axios.post("http://localhost:4000/login", { email, password })
     
     if (response.data.status === 200) {
-      localStorage.setItem('user', response.data.token)
+      setUser(response.data.token)
       router.push('/resume-match-jd')
     } else if(response.data.status === 400) {
       alert("Invalid credentials")

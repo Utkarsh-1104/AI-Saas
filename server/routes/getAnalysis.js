@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.post('/', async (req, res) => {
     const { userId } = req.body;
+    console.log(userId)
 
     try {
         await db()
@@ -13,8 +14,8 @@ router.post('/', async (req, res) => {
         const analysis = await Analysis.find({user: userId})
 
         res.json({
-            status: 200,
-            analysis
+            status: 200, 
+            analysis: analysis
         })
     } catch (error) {
         res.json({
