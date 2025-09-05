@@ -3,18 +3,16 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { useAnalyses } from "@/app/context/AnalysisContext"
+import axios from "axios"
 
 interface Analysis {
-  id: string
-  date: string
-  jobTitle: string
-  matchScore: number
-  strengths: string[]
-  weaknesses: string[]
-  suggestions: string[]
-  overallComment: string
-  resume: string
-  jobDescription: string
+  _id: string
+  user: string
+  jdText: string
+  resumeText: string
+  analysis: string
+  createdAt: string
 }
 
 
@@ -24,17 +22,14 @@ export default function AnalysisDetail() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simulate API call to fetch analysis by ID
-    const fetchAnalysis = () => {
-      const foundAnalysis = mockAnalyses.find((a) => a.id === params.id)
-      setTimeout(() => {
-        setAnalysis(foundAnalysis || null)
-        setIsLoading(false)
-      }, 500)
+    const fetchAnalysis = async () => {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/getanalysis/${params.id}`)
+      setAnalysis(res.data.singleAnalysis[0] || null)
+      setIsLoading(false)
     }
-
     fetchAnalysis()
-  }, [params.id])
+  }, [])
+  console.log(analysis)
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -43,6 +38,16 @@ export default function AnalysisDetail() {
       day: "numeric",
     })
   }
+
+  const parseAnalysis = (analysis: string) => {
+  try {
+    const parsed = JSON.parse(analysis)
+    return parsed
+  } catch (error) {
+    console.error("Error parsing analysis:", error)
+    return null
+  }
+}
 
   if (isLoading) {
     return (
@@ -83,29 +88,29 @@ export default function AnalysisDetail() {
           <div className="flex items-center space-x-4">
             <Link
               href="/dashboard"
-              className="text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide"
+              className="text-xs lg:text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide"
             >
               ← Dashboard
             </Link>
             <span className="text-gray-300">/</span>
-            <span className="text-sm text-gray-500 uppercase tracking-wide">Analysis Details</span>
+            <span className="text-xs lg:text-sm text-gray-500 uppercase tracking-wide">Analysis Details</span>
           </div>
-          <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide">
+          <Link href="/" className="text-xs lg:text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide">
             Home
           </Link>
         </div>
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-light text-black mb-4 tracking-tight">Analysis Details</h1>
-          <p className="text-gray-600 text-lg">{formatDate(analysis.date)}</p>
-          <h2 className="text-xl font-medium mt-4 max-w-3xl mx-auto">{analysis.jobTitle}</h2>
+          <h1 className="text-2xl lg:text-4xl font-light text-black mb-2 lg:mb-4 tracking-tight">Analysis Details</h1>
+          <p className="text-gray-600 text-lg">{formatDate(analysis?.createdAt)}</p>
+          <h2 className="text-base lg:xl mt-4 max-w-3xl mx-auto">{analysis?.jdText}</h2>
         </div>
 
         {/* Match Score */}
         <div className="text-center py-8 mb-12 border-t border-b border-gray-200">
-          <div className="inline-flex items-center justify-center w-32 h-32 border-2 border-black rounded-full mb-4">
-            <span className="text-3xl font-light">{analysis.matchScore}%</span>
+          <div className="inline-flex items-center justify-center w-24 h-24 lg:w-32 lg:h-32 border-2 border-black rounded-full mb-4">
+            <span className="lg:text-3xl text-2xl font-light">{parseAnalysis(analysis?.analysis).match_score * 100}%</span>
           </div>
           <h3 className="text-xl font-medium text-black uppercase tracking-wide">Match Score</h3>
         </div>
@@ -118,10 +123,10 @@ export default function AnalysisDetail() {
               Strengths
             </h3>
             <ul className="space-y-4">
-              {analysis.strengths.map((strength, index) => (
+              {parseAnalysis(analysis?.analysis)?.strengths.map((strength: string, index: number) => (
                 <li key={index} className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-sm text-gray-700 leading-relaxed">{strength}</span>
+                  <span className="lg:text-lg text-base text-gray-700 leading-relaxed">{strength}</span>
                 </li>
               ))}
             </ul>
@@ -133,10 +138,10 @@ export default function AnalysisDetail() {
               Areas to Improve
             </h3>
             <ul className="space-y-4">
-              {analysis.weaknesses.map((weakness, index) => (
+              {parseAnalysis(analysis?.analysis)?.weaknesses.map((weakness: string, index: number) => (
                 <li key={index} className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-sm text-gray-700 leading-relaxed">{weakness}</span>
+                  <span className="lg:text-lg text-base text-gray-700 leading-relaxed">{weakness}</span>
                 </li>
               ))}
             </ul>
@@ -148,10 +153,10 @@ export default function AnalysisDetail() {
               Suggestions
             </h3>
             <ul className="space-y-4">
-              {analysis.suggestions.map((suggestion, index) => (
+              {parseAnalysis(analysis?.analysis)?.suggestions_to_improve.map((suggestion: string, index: number) => (
                 <li key={index} className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-sm text-gray-700 leading-relaxed">{suggestion}</span>
+                  <span className="lg:text-lg text-base text-gray-700 leading-relaxed">{suggestion}</span>
                 </li>
               ))}
             </ul>
@@ -161,7 +166,7 @@ export default function AnalysisDetail() {
         {/* Overall Comment */}
         <div className="border-t border-gray-200 pt-8 mb-12">
           <h3 className="text-lg font-medium text-black uppercase tracking-wide mb-4">Overall Assessment</h3>
-          <p className="text-gray-700 leading-relaxed text-lg max-w-4xl">{analysis.overallComment}</p>
+          <p className="text-gray-700 leading-relaxed lg:text-lg text-base max-w-4xl">{parseAnalysis(analysis?.analysis)?.overall_comment}</p>
         </div>
 
         {/* Original Documents */}
@@ -173,7 +178,7 @@ export default function AnalysisDetail() {
             </h3>
             <div className="bg-gray-50 p-6 border border-gray-200">
               <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono leading-relaxed">
-                {analysis.resume}
+                {analysis.resumeText}
               </pre>
             </div>
           </div>
@@ -184,7 +189,7 @@ export default function AnalysisDetail() {
               Job Description
             </h3>
             <div className="bg-gray-50 p-6 border border-gray-200">
-              <p className="text-sm text-gray-700 leading-relaxed">{analysis.jobDescription}</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{analysis.jdText}</p>
             </div>
           </div>
         </div>

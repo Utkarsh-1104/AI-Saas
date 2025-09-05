@@ -5,7 +5,6 @@ import db from '../db/db.js'
 const router = express.Router()
 
 router.get('/', async (req, res) => {
-    console.log("first")
     await db()
     try {
         const user = await User.findById(req.user.id).select('-password')

@@ -24,10 +24,9 @@ interface User {
 
 
 export default function Dashboard() {
-  const [analyses, setAnalyses] = useState<Analysis[] | null>([])
   const { user } = useUser()
-  
-  
+  const [analyses, setAnalyses] = useState<Analysis[]>([])
+
   useEffect(() => {
     const fetchAnalyses = async () => {
 
@@ -38,7 +37,7 @@ export default function Dashboard() {
     }
     fetchAnalyses()
   }, [user])
-  console.log(analyses)
+
   const handleDelete = (_id: string) => {
     if (confirm("Are you sure you want to delete this analysis?")) {
       // setAnalyses(analyses?.filter((analysis) => analysis._id !== _id))
@@ -96,10 +95,6 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-500 uppercase tracking-wide">Email</p>
                     <p className="text-xl ">{user?.email}</p>
                   </div>
-                  {/* <div>
-                    <p className="text-sm text-gray-500 uppercase tracking-wide">Member Since</p>
-                    <p className="text-sm text-gray-700">{user?.joinDate}</p>
-                  </div> */}
                   <div>
                     <p className="text-sm text-gray-500 uppercase tracking-wide">Total Analyses</p>
                     <p className="text-xl">{analyses?.length}</p>
@@ -140,7 +135,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {analyses?.map((analysis) => (
+                  {analyses?.map((analysis: Analysis) => (
                     <div key={analysis._id} className="border border-gray-200 p-4 hover:border-black transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
