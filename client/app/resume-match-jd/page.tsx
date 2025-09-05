@@ -5,10 +5,18 @@ import React, { use, useEffect } from 'react';
 import pdfToText from 'react-pdftotext';
 import { useUser } from '../context/UserContext';
 
+interface Result {
+  match_score: number;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions_to_improve: string[];
+  overall_comment: string;
+}
+
 export default function ResumeMatchJD() {
   const [resume, setResume] = React.useState('');
   const [jd, setJD] = React.useState('');
-  const [result, setResult] = React.useState(null);
+  const [result, setResult] = React.useState<Result | null>(null);
   const [isLoading, setLoading] = React.useState(false);
   const { user } = useUser();
 
@@ -19,18 +27,18 @@ export default function ResumeMatchJD() {
     }
   }, [])
 
-  console.log(user)
   const extractText = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
-    pdfToText(file).then(text => {
-      setResume(text);
+    if (file) {
+      pdfToText(file).then(text => {
+        setResume(text);
+      }).catch(error => {
+        console.error("Error extracting text from PDF:", error);
+        alert("Failed to extract text from the PDF. Please try another file.");
+      });
+    } else {
+      alert("No file selected. Please upload a valid PDF file.");
     }
-    ).catch(error => {
-      console.error("Error extracting text from PDF:", error);
-      alert("Failed to extract text from the PDF. Please try another file.");
-    }
-    );
-
   }
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +58,7 @@ export default function ResumeMatchJD() {
       alert("Internal server error. Please try again later.");
     } else {
       await axios.post('http://localhost:4000/save-analysis', {
-        user: user?.id,
+        user: user?._id,
         resumeText: resume,
         jdText: jd,
         analysis: response.data.data

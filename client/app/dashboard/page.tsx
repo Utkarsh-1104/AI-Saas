@@ -38,9 +38,10 @@ export default function Dashboard() {
     fetchAnalyses()
   }, [user])
 
-  const handleDelete = (_id: string) => {
+  const handleDelete = async (_id: string) => {
     if (confirm("Are you sure you want to delete this analysis?")) {
-      // setAnalyses(analyses?.filter((analysis) => analysis._id !== _id))
+      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/delete-analysis/${_id}`)
+      window.location.reload()
     }
   }
 

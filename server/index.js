@@ -11,6 +11,7 @@ import saveAnalysis from './routes/saveAnalysis.js';
 import getAnalysis from './routes/getAnalysis.js'
 import resumeJdMatch from './routes/resumeJdMatch.js'
 import getUser from './routes/getUser.js'
+import deleteAnalysis from './routes/deleteAnalysis.js'
 
 import authMiddleware from './middleware/authMiddleware.js';
 
@@ -30,6 +31,7 @@ app.use('/getuser', authMiddleware, getUser);
 app.use('/save-analysis', saveAnalysis);
 app.use('/getanalysis', getAnalysis)
 app.use('/resume-analyzer', resumeJdMatch)
+app.use('/delete-analysis', deleteAnalysis)
 
 
 app.listen(4000, () => {

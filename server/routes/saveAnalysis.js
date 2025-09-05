@@ -6,6 +6,11 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
     const { user, jdText, resumeText, analysis } = req.body;
+    console.log(user, analysis);
+
+    if (!user || !jdText || !resumeText || !analysis) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
 
     try {
         await db();

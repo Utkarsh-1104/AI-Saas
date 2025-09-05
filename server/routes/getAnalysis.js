@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
     try {
         await db()
 
-        const analysis = await Analysis.find({user: userId})
+        const analysis = await Analysis.find({user: userId}).sort({createdAt: -1})
 
         res.json({
             status: 200, 
