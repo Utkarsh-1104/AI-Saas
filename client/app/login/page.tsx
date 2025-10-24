@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
@@ -13,9 +13,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
-  const { setUser } = useUser()
+  const { user, setUser } = useUser()
 
   const router = useRouter()
+
+  useEffect(() => {
+    if (user) {
+      router.push('/resume-match-jd')
+    }
+  }, [user, router])
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {}

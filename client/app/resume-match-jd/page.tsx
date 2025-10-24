@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React, { use, useEffect } from 'react';
 import pdfToText from 'react-pdftotext';
 import { useUser } from '../context/UserContext';
+import { DeepAnalysisSection } from '../deep-analysis/page';
 
 interface Result {
   match_score: number;
@@ -17,6 +18,9 @@ export default function ResumeMatchJD() {
   const [resume, setResume] = React.useState('');
   const [jd, setJD] = React.useState('');
   const [result, setResult] = React.useState<Result | null>(null);
+  const [deepResult, setDeepResult] = React.useState<Result | null>(null);
+  const [analysisId, setAnalysisId] = React.useState<string | null>(null);
+  const [deeplyAnalyzed, setDeeplyAnalyzed] = React.useState(false);
   const [isLoading, setLoading] = React.useState(false);
   const { user } = useUser();
 
@@ -45,24 +49,24 @@ export default function ResumeMatchJD() {
     setLoading(true);
     e.preventDefault();
 
-    const response = await axios.post('http://localhost:4000/resume-analyzer', {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/resume-analyzer`, {
       resumeText: resume,
       jd: jd
     })
-
     setResult(response.data.data);
-
+    
     if (response.data.status === 400) {
       alert("Invalid input. Please check your resume and job description.");
     } else if (response.data.status === 500) {
       alert("Internal server error. Please try again later.");
     } else {
-      await axios.post('http://localhost:4000/save-analysis', {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/save-analysis`, {
         user: user?._id,
         resumeText: resume,
         jdText: jd,
         analysis: response.data.data
       });
+      setAnalysisId(res.data.data._id);
     }
     setLoading(false);
   };
@@ -72,9 +76,32 @@ export default function ResumeMatchJD() {
     setJD("")
     setResult(null)
   }
-  console.log(result)
+  
+  const handleDeepAnalysis = async () => {
+    setLoading(true);
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/deep-analysis`, {
+      resumeText: resume,
+      jd: jd
+    });
+
+    setDeepResult(response.data.deepAnalysis);
+
+    if (response.data.status === 400) {
+      alert("Invalid input. Please check your resume and job description.");
+    } else if (response.data.status === 500) {
+      alert("Internal server error. Please try again later.");
+    } else {
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/save-deep-analysis`, {
+        analysisId: analysisId,
+        deepAnalysis: response.data.deepAnalysis
+      });
+    }
+    setLoading(false);
+    setDeeplyAnalyzed(true);
+  }
+
   return (
-     <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-14 sm:px-6 lg:px-8">
         <Link href="/dashboard" className="absolute right-6 top-4 sm:right-10 sm:top-6 px-4 py-2 text-xs sm:px-6 sm:text-base bg-black text-white font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors">
           Dashboard
@@ -117,7 +144,7 @@ export default function ResumeMatchJD() {
             <button
               onClick={handleSubmit}
               disabled={isLoading || !resume.trim() || !jd.trim()}
-              className="px-8 py-3 bg-black text-white font-medium uppercase tracking-wide hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="px-8 py-3 bg-black text-white font-medium uppercase tracking-wide cursor-pointer hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? "Analyzing..." : "Analyze Resume"}
             </button>
@@ -125,7 +152,7 @@ export default function ResumeMatchJD() {
             {result && (
               <button
                 onClick={handleReset}
-                className="px-8 py-3 border border-black text-black font-medium uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+                className="px-8 py-3 border border-black text-black font-medium uppercase tracking-wide hover:bg-black hover:text-white cursor-pointer transition-colors"
               >
                 Start Over
               </button>
@@ -208,6 +235,17 @@ export default function ResumeMatchJD() {
               <h3 className="text-xl font-medium text-black uppercase tracking-wide mb-4">Overall Assessment</h3>
               <p className="text-gray-700 leading-relaxed text-base max-w-3xl">{result.overall_comment}</p>
             </div>
+            
+            {!deeplyAnalyzed && (
+              <div className='flex items-center justify-between border-t border-gray-200 pt-8'>
+                <p className="text-gray-700 leading-relaxed text-base">Still not satisfied? Get more insights with our deep analysis report.</p>
+                <button onClick={handleDeepAnalysis} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-800">Deep Analysis</button>
+              </div>
+            )}
+
+            {deepResult && deeplyAnalyzed && (
+              <DeepAnalysisSection deepResult={deepResult} />
+            )}
           </div>
         )}
       </div>

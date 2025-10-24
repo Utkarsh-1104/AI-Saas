@@ -24,6 +24,10 @@ const analysisSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    deepAnalysis: {
+        type: String,
+        trim: true
+    },
     createdAt: {
         type: Date,
         default: Date.now
