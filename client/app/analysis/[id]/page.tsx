@@ -25,7 +25,11 @@ export default function AnalysisDetail() {
 
   useEffect(() => {
     const fetchAnalysis = async () => {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/getanalysis/${params.id}`)
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/getanalysis/${params.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("user")}`,
+        }
+      })
       setAnalysis(res.data.singleAnalysis[0] || null)
       setIsLoading(false)
     }

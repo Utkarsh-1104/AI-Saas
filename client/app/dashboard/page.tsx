@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import axios from "axios"
 import { useUser } from "../context/UserContext"
+import { useRouter } from "next/navigation"
 
 interface Analysis {
   _id: string
@@ -24,23 +25,48 @@ interface User {
 
 
 export default function Dashboard() {
-  const { user } = useUser()
+  const { user, loading } = useUser()
   const [analyses, setAnalyses] = useState<Analysis[]>([])
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [loading, user, router]);
 
   useEffect(() => {
     const fetchAnalyses = async () => {
-
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/getanalysis`, {
         userId: user?._id,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("user")}`,
+        }
       })
       setAnalyses(response.data.analysis)
     }
     fetchAnalyses()
   }, [user])
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <p className="text-gray-500">Loading...</p>
+    </div>
+  }
+
+  if (!user) {
+    return null;
+  }
+
+
   const handleDelete = async (_id: string) => {
     if (confirm("Are you sure you want to delete this analysis?")) {
-      const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/delete-analysis/${_id}`)
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/delete-analysis/${_id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("user")}`,
+        }
+      })
       window.location.reload()
     }
   }
@@ -74,7 +100,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <h1 className="text-4xl font-light text-black tracking-tight">Dashboard</h1>
-          <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide">
+          <Link href="/resume-match-jd" className="text-sm text-gray-500 hover:text-black transition-colors uppercase tracking-wide">
             ← Back to Analyzer
           </Link>
         </div>
@@ -105,7 +131,7 @@ export default function Dashboard() {
 
               <div className="space-y-3">
                 <Link
-                  href="/"
+                  href="/resume-match-jd"
                   className="block w-full px-4 py-3 bg-black text-white text-center font-medium uppercase tracking-wide hover:bg-gray-800 transition-colors"
                 >
                   New Analysis

@@ -49,11 +49,11 @@ export default function LoginPage() {
 
     setIsLoading(true)
 
-    
-    const response = await axios.post("http://localhost:4000/login", { email, password })
-    
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/login`, { email, password })
+    console.log(response)
     if (response.data.status === 200) {
-      setUser(response.data.token)
+      localStorage.setItem("user", response.data.token)
+      setUser(response.data.user)
       router.push('/resume-match-jd')
     } else if(response.data.status === 400) {
       alert("Invalid credentials")

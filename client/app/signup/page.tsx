@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import axios from "axios"
 import { useRouter } from "next/navigation"
@@ -16,7 +16,13 @@ export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useUser()
+  const { user, setUser } = useUser()
+
+  useEffect(() => {
+    if (user) {
+      router.push('/resume-match-jd')
+    }
+  }, [user, router])
 
   const [errors, setErrors] = useState<{
     firstName?: string
@@ -68,7 +74,7 @@ export default function SignupPage() {
 
     // Simulate API call
 
-    const response = await axios.post("http://localhost:4000/signup", {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
       firstName,
       lastName,
       email,
@@ -76,7 +82,8 @@ export default function SignupPage() {
     })
     
     if (response.data.status === 200) {
-      login(response.data.token)
+      localStorage.setItem("user", response.data.token)
+      setUser(response.data.user)
       router.push("/resume-match-jd")
     } else {
       setIsLoading(false)

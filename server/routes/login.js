@@ -18,15 +18,15 @@ router.post('/', async (req, res) => {
 
         const user = await User.find({email: email});
         if (user.length === 0) {
-            return res.status(400).json({ message: "User does not exist" });
+            return res.json({ status: 400,message: "User does not exist" });
         }
 
         bcrypt.compare(password, user[0].password, function(err, result) {
             if (err) {
-                return res.status(500).json({ message: "Internal server error" });
+                return res.json({ status: 500, message: "Internal server error" });
             }
             if (!result) {
-                return res.status(400).json({ message: "Invalid credentials" });
+                return res.json({ status: 400,  message: "Invalid credentials" });
             }
 
             const token = jwt.sign({

@@ -13,31 +13,41 @@ interface User {
 
 interface UserContextType {
   user: User | null;
+  loading: boolean;
   setUser: (user: User | null) => void;
   getUser: () => Promise<void>;
   logout: () => void;
 }
 
+
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
     const token = localStorage.getItem("user");
-    if (!token) return;
-    
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/getuser`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/getuser`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUser(res.data.user);
     } catch (error) {
       console.error("Error fetching user:", error);
-      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,11 +61,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, getUser: fetchUser, logout }}>
+    <UserContext.Provider
+      value={{ user, loading, setUser, getUser: fetchUser, logout }}
+    >
       {children}
     </UserContext.Provider>
   );
 };
+
 
 export const useUser = () => {
   const context = useContext(UserContext);

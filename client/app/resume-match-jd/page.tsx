@@ -5,6 +5,7 @@ import React, { use, useEffect } from 'react';
 import pdfToText from 'react-pdftotext';
 import { useUser } from '../context/UserContext';
 import { DeepAnalysisSection } from '../deep-analysis/page';
+import { useRouter } from 'next/navigation';
 
 interface Result {
   match_score: number;
@@ -22,14 +23,25 @@ export default function ResumeMatchJD() {
   const [analysisId, setAnalysisId] = React.useState<string | null>(null);
   const [deeplyAnalyzed, setDeeplyAnalyzed] = React.useState(false);
   const [isLoading, setLoading] = React.useState(false);
-  const { user } = useUser();
+  const { user, loading } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      // If the user is not logged in, redirect to the login page
-      window.location.href = '/login';
+    if (!loading && !user) {
+      router.push("/login");
     }
-  }, [])
+  }, [loading, user, router]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <p className="text-gray-500">Loading...</p>
+    </div>
+  }
+
+  if (!user) {
+    // If the user is not logged in, redirect to the login page
+    window.location.href = '/login';
+  }
 
   const extractText = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
@@ -52,6 +64,10 @@ export default function ResumeMatchJD() {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/resume-analyzer`, {
       resumeText: resume,
       jd: jd
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("user")}`,
+      }
     })
     setResult(response.data.data);
     
@@ -65,6 +81,10 @@ export default function ResumeMatchJD() {
         resumeText: resume,
         jdText: jd,
         analysis: response.data.data
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("user")}`,
+        }
       });
       setAnalysisId(res.data.data._id);
     }
@@ -82,6 +102,10 @@ export default function ResumeMatchJD() {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/deep-analysis`, {
       resumeText: resume,
       jd: jd
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("user")}`,
+      }
     });
 
     setDeepResult(response.data.deepAnalysis);
@@ -94,6 +118,10 @@ export default function ResumeMatchJD() {
       await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/save-deep-analysis`, {
         analysisId: analysisId,
         deepAnalysis: response.data.deepAnalysis
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("user")}`,
+        }
       });
     }
     setLoading(false);

@@ -14,6 +14,7 @@ import getUser from './routes/getUser.js'
 import deleteAnalysis from './routes/deleteAnalysis.js'
 import deepAnalysis from './routes/deepAnalysis.js'
 import saveDeepAnalysis from './routes/saveDeepAnalysis.js'
+import settings from './routes/settings.js'
 
 import authMiddleware from './middleware/authMiddleware.js';
 
@@ -30,12 +31,13 @@ app.get('/', async (req, res) => {
 app.use('/signup', signup);
 app.use('/login', login);
 app.use('/getuser', authMiddleware, getUser);
-app.use('/save-analysis', saveAnalysis);
-app.use('/getanalysis', getAnalysis)
-app.use('/resume-analyzer', resumeJdMatch)
-app.use('/delete-analysis', deleteAnalysis)
-app.use('/deep-analysis', deepAnalysis)
-app.use('/save-deep-analysis', saveDeepAnalysis)
+app.use('/save-analysis', authMiddleware, saveAnalysis);
+app.use('/getanalysis', authMiddleware, getAnalysis)
+app.use('/resume-analyzer', authMiddleware, resumeJdMatch)
+app.use('/delete-analysis', authMiddleware, deleteAnalysis)
+app.use('/deep-analysis', authMiddleware, deepAnalysis)
+app.use('/save-deep-analysis', authMiddleware, saveDeepAnalysis)
+app.use('/settings', authMiddleware, settings)
 
 
 app.listen(4000, () => {
