@@ -4,7 +4,7 @@ interface DeepAnalysisSectionProps {
   deepResult: any
 }
 
-export default function DeepAnalysisSection({ deepResult }: DeepAnalysisSectionProps) {
+export function DeepAnalysisSection({ deepResult }: DeepAnalysisSectionProps) {
   const [deepAnalysis, setDeepAnalysis] = React.useState<any>(deepResult);
 
   function getKeywordMatchPercentage(): number {
